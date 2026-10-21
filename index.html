@@ -521,7 +521,8 @@ function renderPanel(){
     p.innerHTML=`<div class="hint">${state.cuisine?"먹고 싶은 메뉴를 누르면 음식점이 펼쳐져요. 못 고르겠으면 메뉴 랜덤 추천을 눌러보세요.":"한식·양식·중식·일식·그 외·술집 중에서 고르거나, 랜덤 추천으로 큰 분류부터 정해보세요."}</div>`;return;
   }
   const score=x=>avgOf(othersOf(x.name));
-  items.sort((a,b)=>score(b)-score(a)||(b.pick||0)-(a.pick||0));
+  const cnt=x=>othersOf(x.name).length;
+  items.sort((a,b)=>score(b)-score(a)||cnt(b)-cnt(a)||(b.pick||0)-(a.pick||0));
   p.innerHTML=`<div class="panel-head"><h2>${title}</h2><p>${sub}</p></div>`+
     (items.length?`<div class="list">${items.map(card).join("")}</div>`:`<div class="hint">조건에 맞는 곳이 없어요.</div>`);
   resolveNames();
