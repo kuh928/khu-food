@@ -45,6 +45,17 @@ body{margin:0}
 .guide i{font-style:normal;color:var(--teal)}
 .steps{display:flex;flex-direction:column;gap:2px;margin:4px 0;padding:8px 12px;background:var(--accent-soft);border-radius:10px;font-size:13.5px}
 @media (max-width:520px){.btn-wrap{width:100%;align-items:stretch}.rx-hint{text-align:center}}
+.tab-rev{border-style:dashed}
+.rank{background:var(--paper);border:1.5px solid var(--line);border-radius:20px;padding:16px 20px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px}
+.rank h2{font:400 24px var(--f-display);margin:0}
+.rank-sub{margin:0;color:var(--muted);font-size:13px}
+.rank-list{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px}
+.rank-list li{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 12px;border-radius:12px;background:var(--bg)}
+.rank-list li:nth-child(1){background:var(--accent-soft)}
+.rk{width:28px;text-align:center;font:400 18px var(--f-display);color:var(--muted)}
+.rk-name{font:400 17px var(--f-display);flex:1 1 auto;min-width:0}
+.rk-n{font-size:13.5px;color:var(--muted)}.rk-n b{color:var(--ink);font-weight:400;font-variant-numeric:tabular-nums}
+.rk-avg{font-size:12.5px;color:var(--accent)}
 .credit{margin:2px 0 0;font-size:12.5px;color:var(--accent)}
 .brand{display:flex;gap:14px;align-items:center;min-width:0}
 .btn-rx{font:400 17px var(--f-display);background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:12px 22px;cursor:pointer;box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 70%,#000);transition:transform .1s}
@@ -155,6 +166,7 @@ footer{color:var(--muted);font-size:12.5px;border-top:1.5px dotted var(--line);p
       <li><b>랜덤 추천</b> · 버튼 이름이 지금 고른 단계에 따라 바뀌어요.
         <span class="steps"><span>아무것도 안 골랐을 때 → <b>분류</b> 추천</span><span>분류를 골랐을 때 → <b>메뉴</b> 추천</span><span>메뉴까지 골랐을 때 → <b>음식점</b> 추천</span></span>
         단계 없이 바로 음식점을 뽑으려면 <i>음식점 바로 추천</i>을 누르세요.</li>
+      <li><b>리뷰 있는 곳</b> · 탭 맨 끝의 <i>⭐ 리뷰 있는 곳</i>을 누르면 리뷰가 달린 음식점만 평점 높은 순으로 모아 보여요. 맨 아래 <i>맛잘알 순위</i>에서는 리뷰를 많이 남긴 사람을 볼 수 있어요.</li>
       <li><b>검색</b> · 음식점 이름이나 메뉴(예: 제육, 마라)로 바로 찾을 수 있어요.</li>
       <li><b>평점·한줄평</b> · 구글 로그인 후 카드의 <i>평 남기기</i>로 별점, 한줄평, 학교까지 거리를 남길 수 있어요. 거리는 사람들이 가장 많이 고른 단계로 보여요. 각자 자기 평만 고칠 수 있어요.</li>
     </ol>
@@ -170,6 +182,8 @@ footer{color:var(--muted);font-size:12.5px;border-top:1.5px dotted var(--line);p
   <nav class="tabs" id="tabs" role="tablist"></nav>
   <div class="grid" id="grid"></div>
   <section class="panel" id="panel"></section>
+
+  <section class="rank" id="rank"></section>
 
   <footer>
     <span>평점과 한줄평은 구글 로그인하면 누구나 남길 수 있고, 각자 자기 평만 고칠 수 있어요. 장난 글은 관리자가 지워요.</span>
@@ -196,7 +210,7 @@ const DATA={
  "국수·냉면":[
   ["79번지국수집","h","닭칼국수, 고기김치전, 초계국수",1],["경희면옥 본점","h","냉면, 갈비"],["육쌈냉면 경희대점","h","냉면 + 숯불고기"],["153구포국수 회기역점","h","국수"],["이문동신냉면","i","냉면"],["구돌면옥","i","냉면"],["신의한국수 외대점","i","국수"]],
  "닭요리":[
-  ["여기가 좋겠네","h","닭볶음탕, 고기떡볶이 (골목식당)",1],["이송닭한마리&부대찌개 본점","h","반반육수 닭한마리"],["삼복한방닭한마리","h","한방 닭한마리",1],["닭한마리칼국수","h","닭한마리, 칼국수"],["봉추찜닭","h","찜닭"],["닭갈비도시","w","닭갈비"],["20년전통외대닭갈비","i","닭갈비, 막국수"],["꿀꿀이닭갈비 외대점","i","닭갈비, 두루치기"],["닭한마리","i","닭한마리"],["그린치킨닥터 외대본점","i","치킨스테이크 (치밥 원조)"]],
+  ["여기가 좋겠네","h","닭볶음탕, 고기떡볶이 (골목식당)",1],["이송닭한마리&부대찌개 본점","h","반반육수 닭한마리"],["삼복한방닭한마리","h","한방 닭한마리",1],["닭한마리칼국수","h","닭한마리, 칼국수"],["봉추찜닭","h","찜닭"],["닭갈비도시","w","닭갈비"],["20년전통외대닭갈비","i","닭갈비, 막국수"],["꿀꿀이닭갈비 외대점","i","닭갈비, 두루치기"],["닭한마리","i","닭한마리"],["그린치킨닥터 외대본점","i","치킨스테이크 (치밥 원조)"],["불타는닭갈비 경희대점","h","닭갈비"]],
  "족발·보쌈":[
   ["회기왕족발보쌈","h","보쌈, 보쌈김치, 쟁반막국수",1],["할머니보쌈","i","보쌈정식"],["본가할머니보쌈","i","보쌈"],["옛날할머니보쌈","i","보쌈"],["구구족 외대점","i","족발, 보쌈"],["서울우담냉채족발","h","냉채족발"]],
  "전·파전":[
@@ -210,7 +224,7 @@ const DATA={
  "만두":[
   ["봉이만두","w","찐만두, 군만두, 김치만두"],["놀부만두","w","수제만두"],["홍학","h","만두, 만두전골"]],
  "육회":[
-  ["육회바른연어 경희대점","h","육회덮밥, 연어덮밥"],["육회바른연어 외대점","h","육회덮밥, 연어덮밥"],["육회지존 회기역점","h","육회"],["먹깨비","h","육회, 삼겹살"],["육초연","h","육회, 초밥, 냉모밀"]],
+  ["육회지존 회기역점","h","육회"],["먹깨비","h","육회, 삼겹살"],["육초연","h","육회, 초밥, 냉모밀"],["육회바른연어 외대점","i","육회, 연어"],["육회바른연어 회기점","h","육회, 연어"]],
  "퓨전한식":[
   ["호헌장담","i","퓨전한식, 고등어"],["봄의정원 회기점","h","퓨전 한식"]]
 },
@@ -272,7 +286,7 @@ const DATA={
  "라면":[
   ["레알라면","h","매운라면 3단계, 셀프바",1],["라면팜","i","라면"]],
  "치킨":[
-  ["치맥파이브","h","치킨, 페퍼로니피자"],["맛닭꼬 경희대점","h","치킨"],["보드람치킨 경희대점","h","치킨"],["한국통닭","h","통닭"],["59년옛날통닭 외대점","i","옛날통닭"],["오븐마루치킨 외대점","i","오븐치킨"],["치킨에꼬치다 외대역점","i","치킨, 꼬치"],["교촌치킨 경희대점","h","간장·레드 치킨"],["노랑통닭 경희대점","h","후라이드 통닭"],["60계 치킨 서울회기점","h","치킨"],["호식이두마리치킨 회기점","h","두마리 치킨"],["푸라닭 회기점","h","치킨, 디트로이트피자"],["굽네치킨 회기역점","h","오븐치킨, 시카고피자"],["굽네치킨 이문2호점","i","오븐치킨"],["BBQ 이문동점","i","치킨, 시카고피자"],["BBQ치킨 에브리데이이문점","i","치킨"],["치킨앤칩스","h","치킨"],["왕가토요닭 경희대점","h","치킨"],["참말로좋수닭 273","h","치킨"]],
+  ["치맥파이브","h","치킨, 페퍼로니피자"],["맛닭꼬 경희대점","h","치킨"],["보드람치킨 경희대점","h","치킨"],["안암아줌마치킨 경희대점","h","치킨"],["한국통닭","h","통닭"],["59년옛날통닭 외대점","i","옛날통닭"],["오븐마루치킨 외대점","i","오븐치킨"],["치킨에꼬치다 외대역점","i","치킨, 꼬치"],["교촌치킨 경희대점","h","간장·레드 치킨"],["노랑통닭 경희대점","h","후라이드 통닭"],["60계 치킨 서울회기점","h","치킨"],["호식이두마리치킨 회기점","h","두마리 치킨"],["푸라닭 회기점","h","치킨, 디트로이트피자"],["굽네치킨 회기역점","h","오븐치킨, 시카고피자"],["굽네치킨 이문2호점","i","오븐치킨"],["BBQ 이문동점","i","치킨, 시카고피자"],["BBQ치킨 에브리데이이문점","i","치킨"],["치킨앤칩스","h","치킨"],["왕가토요닭 경희대점","h","치킨"],["참말로좋수닭 273","h","치킨"]],
  "타코·멕시칸":[
   ["코타","h","갈비타코, 피시타코, 코타프라이즈",1],["따께리아 라 비다","h","타코"],["이터스 외대점","i","멕시칸 (테라스)"],["밀플랜비","i","부리또, 핫도그"]],
  "쌀국수·동남아":[
@@ -288,11 +302,11 @@ const DATA={
  "이자카야":[
   ["고레가","h","한우스지수육, 하이볼 2,900원"],["양일","h","이자카야"],["오호리","h","숙성회"],["오사카고양이 회기점","h","야끼소바"],["쿠시노아 회기점","h","꼬치"],["야끼토리쿠루","h","숯불 꼬치, 하이볼"],["산카이 회기역점","w","이자카야 (새벽 영업)"],["후루사토","w","안주 코스, 무한주류"],["오사카고양이 외대점","i","야끼소바"],["제철실비 외대앞점","i","장어덮밥, 이자카야"],["인서울","i","오코노미야끼"],["카쿠시아지","i","나베"],["퓨전 이자카야 비스트리트","i","퓨전 일식"]],
  "호프·맥주":[
-  ["앵춘 경희대점","h","치킨"],["안암아줌마치킨 경희대점","h","치킨"],["서래맥주집","h","맥주"],["역전할머니맥주 1982","h","염통꼬치"],["회기호프","h","육회, 후라이드",1],["무지개맥주 경희대점","h","맥주, 치킨"],["생활맥주 외대점","i","수제맥주, 치킨"],["시니혀니 비어 경희대이야기","h","맥주, 안주"],["하노이맥주밤거리 경희대점","h","베트남 맥주, 안주"]],
+  ["서래맥주집","h","맥주"],["역전할머니맥주 1982","h","염통꼬치"],["회기호프","h","육회, 후라이드",1],["무지개맥주 경희대점","h","맥주, 치킨"],["생활맥주 외대점","i","수제맥주, 치킨"],["시니혀니 비어 경희대이야기","h","맥주, 안주"],["하노이맥주밤거리 경희대점","h","베트남 맥주, 안주"],["크치치킨","h","치킨, 파스타, 맥주"],["앵춘 경희대점","h","치킨, 맥주"]],
  "요리주점·포차":[
-   ["크치치킨","h","치킨 + 파스타"],["넉","h","생맥주 무한리필"],["술밤","h","안주, 하이볼 (새벽)"],["별밤 회기역점","h","바지락 술국"],["비틀","h","요리주점"],["꽃술","h","술집 (새벽)"],["이문닭발","h","닭발 (심야)"],["경희회관","h","술집"],["술이야","i","술집"],["이술집","i","국물닭발, 타코야끼"],["백수씨 심야식당 회기본점","h","강원도식 해산물 요리",1],["청담 짝태 & 연어","i","짝태, 연어"],["이십세기분식포차","h","분식포차, 계란말이김밥"],["술꾼일지","h","고기·안주"],["진키친x밤엔,술집","h","요리주점"]],
+  ["술밤","h","안주, 하이볼 (새벽)"],["별밤 회기역점","h","바지락 술국"],["비틀","h","요리주점"],["꽃술","h","술집 (새벽)"],["이문닭발","h","닭발 (심야)"],["경희회관","h","술집"],["술이야","i","술집"],["이술집","i","국물닭발, 타코야끼"],["백수씨 심야식당 회기본점","h","강원도식 해산물 요리",1],["청담 짝태 & 연어","i","짝태, 연어"],["이십세기분식포차","h","분식포차, 계란말이김밥"],["술꾼일지","h","고기·안주"],["진키친x밤엔,술집","h","요리주점"],["화이트캣","h","파스타, 피자"]],
  "펍·바":[
-  ["화이트캣","h","파스타, 피자"],["비스트로99","h","술집, 파스타"],["비스마르크","i","펍"],["치비치비","h","수제맥주, 치킨스테이크"],["킹스비어","h","수제맥주, 피자"],["서울 혼술바 범주 회기점","h","혼술바"]]
+  ["비스트로99","h","술집, 파스타"],["비스마르크","i","펍"],["치비치비","h","수제맥주, 치킨스테이크"],["킹스비어","h","수제맥주, 피자"],["서울 혼술바 범주 회기점","h","혼술바"]]
 }};
 
 const state={cuisine:null,sub:null,dong:"all",q:""};
@@ -364,7 +378,7 @@ function editor(x,cur){
     ${(cur.s)?`<button class="ghost danger" type="button" data-act="remove">삭제</button>`:""}<span class="ed-msg" role="status"></span></div>
   </form>`;
 }
-function rerender(){if(RV.open){RV.dirty=true;return}renderPanel()}
+function rerender(){renderRank();if(RV.open){RV.dirty=true;return}renderTabs();renderPanel();renderBtn()}
 function resolveNames(){}
 async function writeMine(places){
   const {doc,setDoc,serverTimestamp}=RV.fs;const u=RV.me;
@@ -461,14 +475,25 @@ function renderDong(){
   const opts=[["all","전체"],["h","회기동"],["i","이문동"],["w","휘경동"]];
   $("#dongChips").innerHTML=opts.map(([k,l])=>`<button class="chip" type="button" data-d="${k}" aria-pressed="${state.dong===k}">${l}</button>`).join("");
 }
+const REV="__rev";
+const reviewed=()=>flat.filter(x=>okDong(x)&&othersOf(x.name).length);
 function renderTabs(){
   $("#tabs").innerHTML=Object.keys(DATA).map(c=>{
     const n=flat.filter(x=>x.c===c&&okDong(x)).length;
-    return `<button class="tab" role="tab" type="button" data-c="${c}" aria-selected="${state.cuisine===c&&!state.q}">${ICON[c]} ${c}<span class="n">${n}</span></button>`}).join("");
+    return `<button class="tab" role="tab" type="button" data-c="${c}" aria-selected="${state.cuisine===c&&!state.q}">${ICON[c]} ${c}<span class="n">${n}</span></button>`}).join("")+
+    `<button class="tab tab-rev" role="tab" type="button" data-c="${REV}" aria-selected="${state.cuisine===REV&&!state.q}">⭐ 리뷰 있는 곳<span class="n">${reviewed().length}</span></button>`;
+}
+function renderRank(){
+  const box=$("#rank");if(!box)return;
+  const rows=Object.keys(RV.reviews).map(uid=>{const ps=Object.values(RV.reviews[uid]||{}).filter(r=>r&&r.s);return{uid,n:ps.length,avg:ps.length?ps.reduce((a,b)=>a+b.s,0)/ps.length:0}}).filter(r=>r.n).sort((a,b)=>b.n-a.n||b.avg-a.avg).slice(0,10);
+  const medal=["🥇","🥈","🥉"];
+  box.innerHTML=`<h2>🏆 맛잘알 순위</h2><p class="rank-sub">리뷰를 많이 남긴 순서예요</p>`+
+    (rows.length?`<ol class="rank-list">${rows.map((r,i)=>`<li><span class="rk">${medal[i]||i+1}</span><span class="rk-name">${esc(nameOf(r.uid))}</span><span class="rk-n"><b>${r.n}</b>곳 리뷰</span><span class="rk-avg">평균 ★${r.avg.toFixed(1)}</span></li>`).join("")}</ol>`
+      :`<div class="hint">아직 리뷰가 없어요. 첫 리뷰를 남기면 1등이에요!</div>`);
 }
 function renderGrid(){
   const g=$("#grid");
-  if(state.q||!state.cuisine){g.hidden=true;return}
+  if(state.q||!state.cuisine||state.cuisine===REV){g.hidden=true;return}
   g.hidden=false;
   g.innerHTML=Object.keys(DATA[state.cuisine]).map(s=>{
     const n=DATA[state.cuisine][s].filter(r=>okDong({dong:r[1]})).length;
@@ -481,6 +506,9 @@ function renderPanel(){
     const q=state.q.toLowerCase();
     items=flat.filter(x=>okDong(x)&&(x.name.toLowerCase().includes(q)||x.menu.toLowerCase().includes(q)||x.s.includes(state.q)));
     title=`“${esc(state.q)}” 검색 결과`;sub=`${items.length}곳`;
+  }else if(state.cuisine===REV){
+    items=reviewed();
+    title="⭐ 리뷰 있는 곳";sub=`${items.length}곳 · 평점 높은 순`;
   }else if(state.sub){
     items=flat.filter(x=>x.c===state.cuisine&&x.s===state.sub&&okDong(x));
     title=`${state.cuisine} · ${state.sub}`;sub=`${items.length}곳 · 평점 높은 곳, 맛집 글 단골 먼저`;
@@ -493,10 +521,10 @@ function renderPanel(){
     (items.length?`<div class="list">${items.map(card).join("")}</div>`:`<div class="hint">조건에 맞는 곳이 없어요.</div>`);
   resolveNames();
 }
-function level(){return state.q||state.sub?"place":state.cuisine?"menu":"cuisine"}
+function level(){return state.q||state.sub||state.cuisine===REV?"place":state.cuisine?"menu":"cuisine"}
 const HINT={cuisine:"한식·양식 같은 큰 분류를 골라줘요",menu:"고른 분류 안에서 메뉴를 골라줘요",place:"이 조건의 음식점 하나를 골라줘요"};
 function renderBtn(){const h=$("#rxHint");if(h)h.textContent="지금 누르면 → "+HINT[level()];$("#placeBtn").hidden=level()==="place";$("#rxBtn").textContent={cuisine:"분류 랜덤 추천",menu:"메뉴 랜덤 추천",place:"음식점 랜덤 추천"}[level()]}
-function renderAll(){renderDong();renderTabs();renderGrid();renderPanel();renderBtn()}
+function renderAll(){renderDong();renderTabs();renderGrid();renderPanel();renderBtn();renderRank()}
 
 const rnd=a=>a[Math.floor(Math.random()*a.length)];
 function prescribe(force){
@@ -521,11 +549,12 @@ function prescribe(force){
     let pool;
     if(state.q){const q=state.q.toLowerCase();pool=flat.filter(x=>okDong(x)&&(x.name.toLowerCase().includes(q)||x.menu.toLowerCase().includes(q)||x.s.includes(state.q)))}
     else if(state.sub)pool=flat.filter(x=>x.c===state.cuisine&&x.s===state.sub&&okDong(x));
+    else if(state.cuisine===REV)pool=reviewed();
     else if(state.cuisine)pool=flat.filter(x=>x.c===state.cuisine&&okDong(x));
     else pool=flat.filter(okDong);
     if(!pool.length)return;
     const x=rnd(pool);
-    const scope=state.q?"“"+state.q+"”":state.sub?state.cuisine+" · "+state.sub:state.cuisine||"전체";
+    const scope=state.q?"“"+state.q+"”":state.sub?state.cuisine+" · "+state.sub:state.cuisine===REV?"리뷰 있는 곳":state.cuisine||"전체";
     head=`음식점 랜덤 추천 · ${esc(scope)}${dongTxt}`;
     const ot=othersOf(x.name);
     body=`<h2>${esc(x.name)}</h2><p class="menu">${esc(x.c)} · ${esc(x.s)} · ${DONG[x.dong]} — ${esc(x.menu)}</p>
