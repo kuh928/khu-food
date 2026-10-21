@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>경희대 음식 추천</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/* Layout: 동네 밥집 메뉴판 — 둥근 탭과 말랑한 타일, 따뜻한 살구빛 바탕에 귤색 포인트, 허브 그린 보조색 */
+:root{
+  --bg:#fbf3ea; --paper:#fffcf8; --ink:#3b2b22; --muted:#8a7264; --line:#eedfcf;
+  --accent:#e0703f; --accent-ink:#ffffff; --accent-soft:#fde6d8; --teal:#5f7d3a; --teal-soft:#edf2df;
+  --shadow:0 2px 0 #f0e2d3, 0 8px 22px -14px rgba(120,70,30,.35);
+  --f-display:"Jua","Gowun Dodum",system-ui,sans-serif;
+  --f-body:"Gowun Dodum",system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"Gowun Dodum",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1f1914; --paper:#2a221c; --ink:#f4e8dc; --muted:#bba595; --line:#3e3229;
+  --accent:#f2915f; --accent-ink:#2a160b; --accent-soft:#4a2c1d; --teal:#aac47e; --teal-soft:#2e3522;
+  --shadow:0 2px 0 #17120e, 0 8px 22px -14px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1f1914; --paper:#2a221c; --ink:#f4e8dc; --muted:#bba595; --line:#3e3229;
+  --accent:#f2915f; --accent-ink:#2a160b; --accent-soft:#4a2c1d; --teal:#aac47e; --teal-soft:#2e3522;
+  --shadow:0 2px 0 #17120e, 0 8px 22px -14px rgba(0,0,0,.6); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.6}
+.wrap{max-width:1080px;margin:0 auto;padding-block:30px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;background:var(--paper);border-radius:24px;padding:20px 22px;box-shadow:var(--shadow)}
+.rx{width:58px;height:58px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;font-size:30px;flex:none}
+h1{font-family:var(--f-display);font-weight:400;font-size:clamp(28px,6vw,40px);line-height:1.1;margin:0;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0;font-size:14px}
+.auth{display:flex;gap:8px;align-items:center;flex-wrap:wrap;width:100%;justify-content:flex-end;font-size:13.5px}
+.auth-name{color:var(--muted)}
+.imp{display:inline-block}
+.mini{font-size:12px;padding:1px 8px}
+body{margin:0}
+[hidden]{display:none!important}
+.credit{margin:2px 0 0;font-size:12.5px;color:var(--accent)}
+.brand{display:flex;gap:14px;align-items:center;min-width:0}
+.btn-rx{font:400 17px var(--f-display);background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:12px 22px;cursor:pointer;box-shadow:0 4px 0 color-mix(in srgb,var(--accent) 70%,#000);transition:transform .1s}
+.btn-rx:hover{filter:brightness(1.05)}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-alt{font:400 17px var(--f-display);background:var(--paper);color:var(--accent);border:2px solid var(--accent);border-radius:999px;padding:10px 20px;cursor:pointer}
+.btn-alt:hover{background:var(--accent-soft)}
+@media (max-width:520px){.btns{width:100%}.btns button{flex:1 1 0}}
+.btn-rx:active{transform:translateY(2px);box-shadow:0 2px 0 color-mix(in srgb,var(--accent) 70%,#000)}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.label{font:400 15px var(--f-display);color:var(--muted);margin-right:2px}
+.chip{font:400 14px var(--f-body);border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:6px 14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--teal);color:var(--paper);border-color:var(--teal)}
+.search{flex:1 1 220px;min-width:0;display:flex}
+.search input{width:100%;font:15px var(--f-body);padding:10px 16px;border:1.5px solid var(--line);border-radius:999px;background:var(--paper);color:var(--ink)}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 6px}
+.tab{font:400 19px var(--f-display);background:var(--paper);border:1.5px solid var(--line);color:var(--ink);padding:9px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.tab:hover{border-color:var(--accent)}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.tab .n{font:400 12px var(--f-body);opacity:.75}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
+.tile{text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:18px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:2px;color:var(--ink);font-family:var(--f-body);box-shadow:var(--shadow);transition:transform .12s}
+.tile:hover{transform:translateY(-2px);border-color:var(--accent)}
+.tile b{font:400 19px var(--f-display);font-weight:400}
+.tile span{font-size:12.5px;color:var(--muted)}
+.tile[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.tile[disabled]{opacity:.4;cursor:default;transform:none}
+.panel{display:flex;flex-direction:column;gap:12px}
+.panel-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+.panel-head h2{font:400 26px var(--f-display);margin:0}
+.panel-head p{margin:0;color:var(--muted);font-size:13px}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.card{background:var(--paper);border:1.5px solid var(--line);border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-width:0;box-shadow:var(--shadow)}
+.card-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.card h3{margin:0;font:400 19px var(--f-display);line-height:1.3}
+.dong{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--teal-soft);color:var(--teal);white-space:nowrap}
+.menu{color:var(--muted);font-size:14px;margin:0}
+.meta{display:flex;gap:14px;font-size:13px;color:var(--muted);border-top:1.5px dotted var(--line);padding-top:8px;flex-wrap:wrap}
+.meta b{font-weight:400;color:var(--ink);font-variant-numeric:tabular-nums}
+.meta .empty{color:var(--muted)}
+.card-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:12px;color:var(--accent)}
+.map{font:400 14px var(--f-display);color:var(--teal);text-decoration:none;border:1.5px solid var(--teal);border-radius:999px;padding:5px 12px;white-space:nowrap}
+.map:hover{background:var(--teal-soft)}
+button.map{background:none;cursor:pointer}
+.note{font-size:13.5px;color:var(--ink);background:var(--teal-soft);border-radius:12px;padding:6px 12px;margin:0}
+.hint{color:var(--muted);font-size:14.5px;padding:24px;border:2px dashed var(--line);border-radius:20px;text-align:center}
+.pick{background:var(--accent-soft);border-radius:24px;padding:20px 22px;display:flex;flex-direction:column;gap:8px}
+.pick .k{font-size:13px;color:var(--accent)}
+.pick h2{font:400 32px var(--f-display);margin:0;line-height:1.15}
+.pick .menu{color:var(--ink);opacity:.8}
+.pick-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px}
+.pick .map{background:var(--paper)}
+.ghost{font:400 14px var(--f-body);background:var(--paper);border:1.5px solid var(--line);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.owner-box{background:var(--accent-soft);border-radius:12px;padding:8px 12px;display:flex;flex-direction:column;gap:2px}
+.owner-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13.5px}
+.who{font:400 14px var(--f-display);color:var(--accent)}
+.st{color:var(--accent);letter-spacing:1px;font-weight:400}
+.owner-t{margin:0;font-size:13.5px;color:var(--ink)}
+.others summary{cursor:pointer;font-size:13px;color:var(--teal)}
+.others ul{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px}
+.others li{display:flex;gap:6px;flex-wrap:wrap;align-items:baseline}
+.rv-name{color:var(--ink)}.rv-t{color:var(--muted);min-width:0;overflow-wrap:anywhere}
+.foot-btns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.editor{display:flex;flex-direction:column;gap:8px;border-top:1.5px dotted var(--line);padding-top:10px}
+.star-pick{display:flex;gap:2px}
+.sp{font-size:26px;line-height:1;background:none;border:0;color:var(--line);cursor:pointer;padding:2px}
+.sp[aria-pressed="true"]{color:var(--accent)}
+.ed-in{font:14px var(--f-body);padding:8px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%}
+.ed-d{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--muted);flex-wrap:wrap}
+.dp{font:400 13px var(--f-body);background:var(--paper);border:1.5px solid var(--line);color:var(--ink);border-radius:999px;padding:4px 10px;cursor:pointer}
+.dp[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:var(--paper)}
+.dist{font-weight:400;padding:1px 8px;border-radius:999px;background:var(--teal-soft);color:var(--teal)}
+.dist-4{background:var(--accent-soft);color:var(--accent)}
+.ed-in.num{width:90px}
+.ed-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn-save{font:400 15px var(--f-display);background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}
+.danger{color:var(--accent)}
+.ed-msg{font-size:12.5px;color:var(--muted)}
+footer{color:var(--muted);font-size:12.5px;border-top:1.5px dotted var(--line);padding-top:14px;display:flex;flex-direction:column;gap:4px}
+@media (max-width:520px){.rx{width:48px;height:48px;font-size:24px}.list{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.btn-rx{width:100%}}
+@media (prefers-reduced-motion:no-preference){.pick{animation:pop .3s cubic-bezier(.3,1.4,.6,1)}@keyframes pop{from{transform:scale(.96);opacity:.6}to{transform:none;opacity:1}}}
+@media (prefers-reduced-motion:reduce){.tile,.btn-rx{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="rx" aria-hidden="true">🍚</div>
+      <div>
+        <h1>경희대 음식 추천</h1>
+        <p class="sub">경희대 서울캠퍼스 주변 · 회기동 · 이문동 · 휘경동 <span id="total"></span></p>
+        <p class="credit">만든 사람 · Claude &amp; 김유현</p>
+      </div>
+    </div>
+    <div class="btns"><button class="btn-rx" id="rxBtn" type="button">분류 랜덤 추천</button><button class="btn-alt" id="placeBtn" type="button">음식점 바로 추천</button></div>
+    <div class="auth" id="authBox"></div>
+  </header>
+
+  <div class="controls">
+    <span class="label">동네</span>
+    <div class="controls" id="dongChips"></div>
+    <label class="search" for="q"><input id="q" type="search" placeholder="음식점·메뉴 검색 (예: 라멘, 제육)" autocomplete="off"></label>
+  </div>
+
+  <section id="pickBox" hidden></section>
+
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <div class="grid" id="grid"></div>
+  <section class="panel" id="panel"></section>
+
+  <footer>
+    <span>평점과 한줄평은 구글 로그인하면 누구나 남길 수 있고, 각자 자기 평만 고칠 수 있어요. 장난 글은 관리자가 지워요.</span>
+    <span>음식점 목록은 2026년 10월 21일 기준 웹 검색(다이닝코드·식신·뽈레·맛집 기사 등)으로 모은 초안이에요. 폐업·이전한 곳이 섞여 있을 수 있으니 네이버 지도로 영업 여부를 확인하세요.</span>
+    <span>휘경동 음식점은 회기역 2번 출구에서 철로 건너편(시립대 쪽) 반경 600m 안에 있는 곳과, 철로 서쪽 파전골목 쪽 가게만 남겨두었어요.</span>
+    <span>동 표시는 주소·상권 기준 대략적인 구분입니다.</span>
+  </footer>
+</div>
+
+<script>
+// 데이터: [이름, 동(h=회기 i=이문 w=휘경), 대표메뉴, 맛집글 다수 소개(1), 학교까지 거리(m), 내 평점(1~5), 한줄평]
+const DONG={h:"회기동",i:"이문동",w:"휘경동"};
+const ICON={"한식":"🍚","양식":"🍝","중식":"🥟","일식":"🍣","그 외":"🍗"};
+const DATA={
+"한식":{
+ "백반·집밥":[
+  ["도읍지","h","제육볶음·계란찜·순두부 백반",1],["사나이뚝배기 경희대점","h","된장·김치뚝배기, 밥 무한리필",1],["제제집 경희대점","h","제육볶음"],
+  ["대박식당","h","집밥, 삼겹살"],["경희쌈밥","h","제육볶음 + 한식뷔페"],["맛나식당","h","집밥"],["경희복국과 생선구이백반","h","고등어구이백반, 참복지리"],
+  ["흥부손맛수라상","h","한식 상차림"],["행복은간장밥 경희대점","h","간장밥"],["쉐프의한끼 회기역점","w","고기, 해장국, 된장찌개"],["짱구네식당","w","가정식"],
+  ["아지매식당","i","제육볶음, 돼지불백"],["광주회관","i","집밥, 삼겹살"],["준이네밥집","i","백반"],["행복한한끼","i","백반"],["밥한술","i","백반"],
+  ["다해식당","i","순두부찌개, 집밥"],["나폴리식당","i","백반"],["오색식당","i","백반"],["자연밥상","i","백반"],["장수식당","i","돼지불백"],
+  ["시골집","i","돼지불백"],["맛집찾다차린맛집","i","집밥, 삼겹살"],["명가식당","i","제육볶음, 생삼겹살"],["따뜻한밥상","i","김치찌개"]],
+ "찌개·순두부":[
+  ["김씨네돌솥밥순두부","w","돌솥밥, 순두부"],["돌돌말아뽀글뽀글","i","순두부찌개"],["삼산회관 회기역점","h","김치찌개"],
+  ["신의주부대찌개 경희대","h","부대찌개, 우삼겹"],["일품의정부 부대찌개","w","부대찌개, 생삼겹살"]],
+ "국밥·감자탕":[
+  ["또순이순대국 경희대점","h","순댓국, 반찬 푸짐",1],["삼삼뼈국 회기점","w","미나리 뼈해장국, 감자탕",1],["고황24시뼈다귀해장국감자탕","h","감자탕, 뼈찜 (24시)"],
+  ["참이맛감자탕&순대국 경희대점","h","감자탕, 순대국"],["병천아우네장터순대","h","순대국"],["이조감자탕","w","감자탕"],["태능감자탕 휘경점","w","감자탕"],
+  ["순대실록 한국외대점","i","순대국, 셀프바"],["해장국감자탕","i","감자탕, 뼈해장국"],["신의주찹쌀순대와쭈꾸미 외대역점","i","순대국, 쭈꾸미"]],
+ "갈비탕·삼계탕":[
+  ["회기왕갈비탕","w","왕갈비탕, 소갈비찜",1],["밀모","i","갈비탕"],["경복궁삼계탕 동대문점","i","삼계탕"]],
+ "국수·냉면":[
+  ["79번지국수집","h","닭칼국수, 고기김치전, 초계국수",1],["경희면옥 본점","h","냉면, 갈비"],["육쌈냉면 경희대점","h","냉면 + 숯불고기"],["153구포국수 회기역점","h","국수"],
+  ["이문동신냉면","i","냉면"],["구돌면옥","i","냉면"],["신의한국수 외대점","i","국수"]],
+ "닭요리":[
+  ["여기가 좋겠네","h","닭볶음탕, 고기떡볶이 (골목식당)",1],["이송닭한마리&부대찌개 본점","h","반반육수 닭한마리"],["삼복한방닭한마리","h","한방 닭한마리",1],
+  ["닭한마리칼국수","h","닭한마리, 칼국수"],["봉추찜닭","h","찜닭"],["닭갈비도시","w","닭갈비"],["20년전통외대닭갈비","i","닭갈비, 막국수"],
+  ["꿀꿀이닭갈비 외대점","i","닭갈비, 두루치기"],["닭한마리","i","닭한마리"],["그린치킨닥터 외대본점","i","치킨스테이크 (치밥 원조)"]],
+ "족발·보쌈":[
+  ["회기왕족발보쌈","h","보쌈, 보쌈김치, 쟁반막국수",1],["할머니보쌈","i","보쌈정식"],["본가할머니보쌈","i","보쌈"],["옛날할머니보쌈","i","보쌈"],
+  ["구구족 외대점","i","족발, 보쌈"],["서울우담냉채족발","h","냉채족발"]],
+ "전·파전":[["이모네왕파전","w","해물파전, 김치전 (파전골목)",1],["버드나무 파전","w","파전"],["온달 파전","h","파전"]],
+ "샤브·칼국수":[
+  ["등촌샤브칼국수 경희대점","h","버섯매운탕 샤브, 칼국수, 볶음밥"],["샤브로21 경희대","h","샤브샤브"],["샤브올데이 서울이문점","i","샤브샤브 뷔페"],["샤브온당 외대점","i","1인 샤브"]],
+ "쭈꾸미":[["신화쭈꾸미","h","쭈꾸미삼겹살, 단계별 매운맛"],["안씨네 쭈꾸미","h","쭈삼"],["쭈꾸미요정","h","쭈꾸미삼겹살"],["매콤화담쭈꾸미","i","쭈꾸미"]],
+ "회·해산물":[
+  ["고기야 미안해","h","모듬회, 방어회 (가성비 횟집)"],["오광수산","w","횟집, 광어"],["백수씨 심야식당 회기본점","h","강원도식 해산물 요리",1],
+  ["청담 짝태 & 연어","i","짝태, 연어"],["미성복집","i","복어, 복찜"]],
+ "만두":[["봉이만두","w","찐만두, 군만두, 김치만두"],["놀부만두","w","수제만두"],["홍학","h","만두, 만두전골"]],
+ "육회":[["육회지존 회기역점","h","육회"],["먹깨비","h","육회, 삼겹살"],["육초연","h","육회, 초밥, 냉모밀"]],
+ "퓨전한식":[["호헌장담","i","퓨전한식, 고등어"],["봄의정원 회기점","h","퓨전 한식"]]
+},
+"양식":{
+ "파스타":[
+  ["굿갓레스토랑 회기점","h","매콤 알리오올리오, 돼지목심 스테이크",1],["매스플레이트 회기점","h","파스타"],["코지 인 무르무르","h","생면파스타"],
+  ["노바 이탈리아노","h","파스타, 피자"],["라구퀸","h","라구 파스타"],["에잇올리","h","파스타"],["어흥식당","h","스테이크, 파스타"],["라 파스타일","h","파스타"],
+  ["화이트캣","h","파스타, 피자"],["오후","h","양식"],["크치치킨","h","치킨 + 파스타"],["치보","i","파스타, 페스카토레"],["파치 외대점","i","파스타, 치킨"],
+  ["브릴란테","i","파스타"],["피렌지앵","i","파스타"]],
+ "피자":[["잭슨피자 회기점","h","피자"],["킹스비어","h","수제맥주, 피자"],["59쌀피자","w","쌀피자"],["서울치즈피자","i","피자"],["화덕고","i","화덕피자"],["자가제빵선명희피자 외대점","i","피자"]],
+ "버거":[["회기버거","w","수제버거"],["1986시부야버거","h","레트로 수제버거"],["버거리 경희대점","h","5천원대 수제버거"],["프랭크버거 회기역점","h","버거"],
+  ["번패티번","i","수제버거"],["왓더버거 이문점","i","버거"]],
+ "경양식·함박":[["언니네함바그 회기점","h","함박스테이크, 카레"],["언니네함바그 외대점","i","함박스테이크"],["경희경양식","h","경양식 돈까스"],["휘경아뜰리에","w","경양식, 돈까스"],["윤양식","w","양식"]],
+ "스테이크·그릴":[["구칠즈그릴","h","그릴, 스테이크"],["샤로스톤","i","스테이크, 규카츠"]],
+ "브런치":[["망우로30","w","브런치"],["그레이스 라운지","w","브런치, 파스타"],["시카고","w","브런치·양식"],["8번가","h","양식"]],
+ "펍·비스트로":[["비스트로99","h","술집, 파스타"],["비스마르크","i","펍"],["치비치비","h","수제맥주, 치킨스테이크"]]
+},
+"중식":{
+ "짜장·짬뽕·탕수육":[
+  ["영화장","i","삼선고추짜장, 삼선백짬뽕, 탕수육 (1948년~)",1],["왼손우동짜장탕수육","h","1인 세트, 우동·짜장"],["황하","h","불맛 짬뽕 (생활의 달인)"],["칠천요","h","중식"],
+  ["하오짬 중화요리","w","짬뽕"],["현대반점","h","중식"],["고향반점","h","중식"],["홍익짬뽕 경희대점","h","짬뽕"],["삼성루","h","짜장면, 돈까스"],["호운래반점","h","중식"],
+  ["향미중식당","h","소분 중식, 마라면"],["기리반점","h","중식"],["국빈","i","짬뽕"],["도원반점 이문외대점","i","중식, 코스요리"],["띵하우","i","중식"]],
+ "마라탕·마라샹궈":[
+  ["와떠마라탕 회기점","h","마라탕, 꿔바로우"],["샹츠마라 경희대점","h","마라탕"],["108장마라탕 본점","h","마라탕"],["춘리마라탕 회기역점","h","마라탕"],
+  ["신장군마라탕 경희대3호점","h","마라탕"],["쇼후","h","마라샹궈, 량피"],["중국전통마라탕마라샹궈 경희대점","h","마라탕, 마라샹궈"],
+  ["탕화쿵푸 외대점","i","마라탕"],["사골마라탕","i","사골 마라탕"],["춘리마라탕 외대점","i","마라탕"],["성화금탕마라탕튀김꼬치","i","마라탕, 튀김꼬치"],["헤이마오차이 외대점","i","마오차이"]],
+ "양꼬치·훠궈":[
+  ["세월양꼬치","h","양꼬치"],["심양양꼬치 경희대점","h","양꼬치"],["양대왕양꼬치","h","양꼬치, 소갈비살"],["봉화양꼬치","h","양꼬치"],
+  ["중경골목훠궈양꼬치무한리필","h","훠궈·양꼬치 무한리필"],["고고훠궈닭","h","훠궈"],["헤일로회전훠궈&구이뷔페","h","회전훠궈"],["촨커","i","양꼬치"]],
+ "면·딤섬":[
+  ["구기우육도삭면 외대본점","i","우육도삭면"],["호랑이도삭면","h","도삭면"],["우마왕 우육면관","h","우육면"],["사천면가","h","사천면"],
+  ["루이상하이훈툰","h","훈툰(완탕)"],["타이거딤섬","h","딤섬 (포장 추천)"],["만두여기요","h","중국 만두"]],
+ "중국 가정식":[
+  ["우차이","h","중국 가정식"],["샹샤오미 중식당","h","중국 요리"],["룽쟝족발덮밥 경희대점","h","족발덮밥"],["중국유학생지가","h","중국 현지식"],
+  ["장기식당","h","중국 가정식"],["조씨오리목 본점","h","오리목"],["촨후","h","사천요리"],["중식의만남","h","중식"],["샹그라","h","중식 요리"]]
+},
+"일식":{
+ "라멘":[["멘지 경희대점","h","토리파이탄, 탄탄멘, 자가제면",1],["하카타","h","라멘"],["마루기","i","냉라멘, 돈코츠, 가라아게동",1],["가야가야","i","돈코츠 라멘"],
+  ["우시라멘","i","라멘, 돈카츠카레"],["BS라멘&돈부리","i","라멘, 돈부리"],["카시와","i","라멘"]],
+ "돈까스":[
+  ["경양카츠 경희대점","h","등심·치즈카츠",1],["홍익돈까스","w","돈까스, 까르보나라"],["가치로아","h","히레카츠, 카레"],["시키카츠","h","카츠, 카레"],
+  ["카츠정연","h","돈카츠 (바테이블)"],["모밀엔카츠 경희대점","h","돈까스, 모밀"],["진주돈까스","w","돈까스"],["카츠이로하","h","돈카츠"],
+  ["금화왕돈까스 휘경점","w","왕돈까스, 셀프바"],["어쩌다빠진돈까스 경희대점","h","돈까스, 쫄면"],["오레노도쿄","h","돈카츠"],
+  ["돼랑이우랑이","i","안심·등심·치킨까스, 우동"],["카츠업 외대점","i","돈카츠, 카레"],["미가돈가스","i","돈까스, 냉모밀"],["아리랑동가스","i","돈까스"]],
+ "우동·소바":[["춘하추우동","w","우동, 카츠카레, 가라아게",1],["난바우동 회기점","h","일본식 우동"],["모코모코","h","냉소바"],["역전우동0410 회기역점","h","우동, 카레덮밥"],["우동키노야 외대점","i","우동, 돈카츠"]],
+ "초밥":[
+  ["오관스시","h","스시, 오마카세",1],["스시히노하루&회기링고","h","스시 (콜키지)"],["스시준","h","스시"],["스시마루","w","초밥, 돈까스"],["사시미래","h","연어초밥, 숙성회"],
+  ["스시 캘리포니아","h","초밥"],["두접시","h","스시정식 (예약 권장)"],["이상준초밥","i","스시"],["주수사","i","두툼한 네타 초밥 (예약 권장)",1],
+  ["또정초밥 이문외대점","i","스시, 숙성회"],["스시붐 외대점","i","초밥"],["스시마츠리","i","초밥"]],
+ "덮밥·일본 가정식":[
+  ["와라비키친","h","밀푀유치즈돈카츠, 치킨남방 정식"],["스타동","h","사케동, 돈부리"],["키친 요로시쿠","h","일본가정식, 치킨난반"],["잇츠소유","h","일본가정식, 카레덮밥"],
+  ["핵밥 경희대점","h","덮밥, 연어덮밥"],["핵밥 한국외대점","i","덮밥"],["동경규동 외대후문점","i","규동"],["아욱꽃","i","오래된 외대 앞 밥집"],["기석일호","i","일식"],["금쪽이","i","일식"]],
+ "카레":[["카빙당","i","카레돈까스, 카츠동"],["고씨네 한국외대점","i","일본카레, 고로케"]],
+ "텐동":[["텐동 토리텐","h","텐동, 셀프 카레·장국"]],
+ "연어·샤브":[["연어이야기","h","연어"],["육회바른연어 외대점","i","연어덮밥, 육회"],["샤브보트R 경희대점","h","1인 샤브샤브"],["샤브카츠","i","샤브, 카츠"]],
+ "이자카야":[
+  ["고레가","h","한우스지수육, 하이볼 2,900원"],["양일","h","이자카야"],["오호리","h","숙성회"],["오사카고양이 회기점","h","야끼소바"],["쿠시노아 회기점","h","꼬치"],
+  ["야끼토리쿠루","h","숯불 꼬치, 하이볼"],["산카이 회기역점","w","이자카야 (새벽 영업)"],["후루사토","w","안주 코스, 무한주류"],["오사카고양이 외대점","i","야끼소바"],
+  ["제철실비 외대앞점","i","장어덮밥, 이자카야"],["인서울","i","오코노미야끼"],["카쿠시아지","i","나베"],["퓨전 이자카야 비스트리트","i","퓨전 일식"]]
+},
+"그 외":{
+ "삼겹살·고깃집":[
+  ["장군집","h","양념 갈매기살, 뽈살",1],["멍군집","h","두툼한 삼겹·목살, 첫판 구워줌",1],["고기하다","h","삼겹·목살, 명이 무한",1],["일구구삼 고기","h","삼겹살 600g 3만원대",1],
+  ["거복이식당","h","삼겹살"],["경성고기꾼","h","고기"],["두레박","h","고기"],["일번지숯불대왕갈비","h","연탄 삼겹·돼지갈비"],["명품수제갈비","w","돼지갈비, 셀프바"],
+  ["갈비장터","h","왕갈비"],["서울본본갈비","h","갈비"],["유성관","h","버섯불고기, 돼지갈비"],["회기돈","h","삼겹살 (야외석)"],["e한돈","h","삼겹살"],
+  ["달려라 생고기","h","삼겹살"],["육담판 회기점","h","고기"],["오겹촌 회기점","h","오겹살"],["구공탄뽈따구","h","목살, 삼겹살"],["연탄돼지갈비 회기점","h","돼지갈비"],
+  ["337","h","냉동삼겹살"],["따띠삼겹 회기점","h","삼겹살"],["술꾼일지","h","고기·안주"],["철계단집","h","고기"],["솔낭구갈비","h","갈비"],["오봉집 경희대점","h","직화 보쌈·쭈꾸미"],
+  ["서래스터","h","고기"],["극락돈 회기점","h","삼겹살"],["생도야지세상","h","삼겹살"],["고기굽는방앗간 경희대점","h","고기"],["돈등갈비","h","등갈비"],
+  ["돈통 휘경점","w","삼겹살"],["그때 그집","i","삼겹살"],["현방촌고기전문점","i","고깃집"],["돈두렁","i","고깃집"],
+  ["화포식당 이문뉴타운점","i","숙성삼겹살"],["이문시장","i","냉삼"],["신라숯불갈비","i","숯불갈비"],["마포생주먹고기","i","주먹고기"],["담가화로구이 외대점","i","화로구이"],
+  ["영수네고기세상","i","고기"],["서가네 정육식당","i","정육식당"],["싸움의고수 외대점","i","고기"]],
+ "소고기·양고기":[["이문동그집 회기역직영점","h","한우차돌박이, 대패"],["이문동그집","i","차돌박이"],["차돌풍 외대점","i","차돌박이"],["현방오백소갈비살 회기점","h","소갈비살"],
+  ["일차돌","h","차돌박이"],["라무진 회기점","h","양갈비"],["정가양갈비","h","양갈비"]],
+ "곱창·막창":[["홍곱창","h","데리야끼막창, 야채곱창",1],["옵소","h","초벌 소곱창 모듬",1],["도래집","h","철판 도래창·막창 (심야)"],["인생소곱창","h","소곱창, 우삼겹"],
+  ["규범곱창","h","야채곱창, 데리야끼막창"],["태곱이네","w","곱창"],["고흥소곱창","i","소곱창"],["도란도란곱창 본점","i","곱창"],["이문왕곱창","i","곰장어 (신이문역 야장)"]],
+ "떡볶이·분식":[
+  ["맹자네떡볶이","w","밀떡볶이, 튀김, 순대",1],["모두랑 즉석떡볶이","h","즉석떡볶이 (토 휴무)",1],["따봉하우스","h","즉석떡볶이 (월 휴무)"],["올레 떡볶이","h","떡볶이, 떡튀범벅"],
+  ["응큼떡볶이 회기점","w","떡볶이, 덮밥 (24시)"],["이십세기분식포차","h","분식포차, 계란말이김밥"],["글라라스푼","h","떡볶이, 참치주먹밥"],["아빠분식","h","분식, 돈까스"],
+  ["동대문엽기떡볶이 경희대점","h","엽떡"],["이상한떡볶이집","i","떡볶이, 크림스파게티"],["새벽길빨간오뎅","i","빨간오뎅"],["일촌분식","i","분식"],
+  ["장터분식 해성만두전문","i","분식, 만두"],["올떡볶이 외대점","i","떡볶이"],["타코비 한국외대점","i","타코야끼"]],
+ "김밥":[["푸른하늘","h","흑미 김밥, 라볶이·쫄면 (생활의 달인)",1],["김밥천국 회기점","w","24시 김밥·찌개"],["얌샘김밥","w","김밥"],["그린김밥","w","김밥"],
+  ["또와김밥","h","김밥"],["연희김밥","h","김밥"],["홀스 김밥&닭강정 회기직영점","h","김밥, 닭강정"],["김곳간","i","김밥, 떡볶이"]],
+ "라면":[["레알라면","h","매운라면 3단계, 셀프바",1],["라면팜","i","라면"]],
+ "치킨":[["치맥파이브","h","치킨, 페퍼로니피자"],["맛닭꼬 경희대점","h","치킨"],["보드람치킨 경희대점","h","치킨"],["앵춘 경희대점","h","치킨"],
+  ["안암아줌마치킨 경희대점","h","치킨"],["한국통닭","h","통닭"],["회기호프","h","육회, 후라이드",1],["59년옛날통닭 외대점","i","옛날통닭"],
+  ["오븐마루치킨 외대점","i","오븐치킨"],["치킨에꼬치다 외대역점","i","치킨, 꼬치"]],
+ "타코·멕시칸":[["코타","h","갈비타코, 피시타코, 코타프라이즈",1],["따께리아 라 비다","h","타코"],["이터스 외대점","i","멕시칸 (테라스)"],["밀플랜비","i","부리또, 핫도그"]],
+ "쌀국수·동남아":[["타이인플레이트","h","태국음식"],["하마쌀국수","h","쌀국수"],["비엣꾸안 쌀국수","h","베트남음식"],["싸왓디타이","h","태국음식"],
+  ["월미당 경희대점","h","쌀국수"],["목꾸안","h","베트남음식"],["어썸타이","h","태국음식"],["샹분","h","쌀국수"],["남원 쌀국수&꼬치","h","쌀국수, 꼬치"],
+  ["미스사이공 외대점","i","쌀국수"],["르안타이","i","태국음식"],["해피반미 이문점","i","반미"],["운남쌀국수","i","운남식 쌀국수"]],
+ "인도·케밥":[["뉴델리","h","인도 커리"],["골드케밥","i","케밥"]],
+ "무한리필":[["닭갈비제작소 경희대점","h","닭갈비·삼겹 무한리필"],["육채미 경희대점","h","샤브·대패·월남쌈 무한리필"],["꽃돼지무한삼겹 경희대점","h","무한삼겹"],
+  ["경희천 꼬치샤브 뷔페","h","꼬치샤브 뷔페"],["두끼 한국외대점","i","떡볶이 뷔페"]],
+ "샐러드·도시락":[["520샐러드&샌드위치","w","샐러드, 샌드위치"],["샐러드식당 휘경점","w","샐러드"],["Poke all day 경희대점","h","포케"],["프레퍼스 다이어트 푸드 회기점","h","다이어트 도시락"],
+  ["샐러드앤포케","i","포케"],["메이크샐러드","i","샐러드"],["한솥도시락 외대정문점","i","도시락"]],
+ "술집·포차":[["술밤","h","안주, 하이볼 (새벽)"],["별밤 회기역점","h","바지락 술국"],["비틀","h","요리주점"],["꽃술","h","술집 (새벽)"],["이문닭발","h","닭발 (심야)"],
+  ["서래맥주집","h","맥주"],["역전할머니맥주 1982","h","염통꼬치"],["경희회관","h","술집"],["술이야","i","술집"],["이술집","i","국물닭발, 타코야끼"]]
+}};
+
+const state={cuisine:null,sub:null,dong:"all",q:""};
+const $=s=>document.querySelector(s);
+const flat=[];
+for(const c in DATA)for(const s in DATA[c])for(const r of DATA[c][s])flat.push({c,s,name:r[0],dong:r[1],menu:r[2],pick:r[3],d:r[4],r:r[5],note:r[6]});
+$("#total").textContent=`· 음식점 ${flat.length}곳`;
+const okDong=x=>state.dong==="all"||x.dong===state.dong;
+const mapUrl=n=>"https://map.naver.com/p/search/"+encodeURIComponent(n+" 동대문구");
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+
+// ================= 설정 (가이드 2~3단계에서 채우기) =================
+const firebaseConfig = {
+  apiKey: "AIzaSyCjERTn0kaMCfuVD7rmSFZM2G5bz7-1rVk",
+  authDomain: "khu-food.firebaseapp.com",
+  projectId: "khu-food",
+  storageBucket: "khu-food.firebasestorage.app",
+  messagingSenderId: "501121361562",
+  appId: "1:501121361562:web:98c90c9626a904d480e123"
+};
+const ADMIN_EMAIL = "trickky928@gmail.com"; // 관리자(김유현) 구글 계정. firestore.rules에도 똑같이 적기
+const ADMIN_NAME  = "김유현";
+const FB = "https://www.gstatic.com/firebasejs/10.12.2/";
+// ===================================================================
+
+// ---- 평점·한줄평 (Firebase) ----
+const RV={fs:null,db:null,auth:null,authMod:null,me:null,isAdmin:false,docs:{},reviews:{},open:null,dirty:false,ready:false};
+const stars=n=>"★".repeat(n)+"☆".repeat(5-n);
+const DIST={1:"코앞 · 5분 안",2:"가까움 · 10분 안",3:"걸을 만함 · 15분 안",4:"좀 멂 · 15분 넘게"};
+const fmtD=d=>DIST[d]||"";
+function distOf(x){let best=null;for(const uid in RV.reviews){const r=RV.reviews[uid]?.[x.name];if(r&&DIST[r.d]&&(!best||(r.at||0)>(best.at||0)))best=r}return best?best.d:0}
+function othersOf(name){const out=[];for(const uid in RV.reviews){const r=RV.reviews[uid]?.[name];if(r&&r.s)out.push({uid,...r})}return out.sort((a,b)=>(b.at||0)-(a.at||0))}
+function avgOf(list){return list.length?list.reduce((a,b)=>a+b.s,0)/list.length:0}
+function nameOf(uid){const d=RV.docs[uid]||{};return d.admin?ADMIN_NAME:(d.name||"익명")}
+
+function card(x){
+  const list=othersOf(x.name),avg=avgOf(list),d=distOf(x);
+  const dist=DIST[d]?`<b class="dist dist-${d}">${fmtD(d)}</b>`:`<span class="empty">미기록</span>`;
+  const myUid=RV.me&&RV.me.uid;
+  const mine=myUid?RV.reviews[myUid]?.[x.name]:null;
+  const k=esc(x.name);
+  const btn=!RV.ready?"":myUid?`<button class="ghost" type="button" data-act="edit">${mine?"내 평 수정":"평 남기기"}</button>`:`<button class="ghost" type="button" data-act="login">로그인하고 평 남기기</button>`;
+  return `<article class="card" data-place="${k}">
+    <div class="card-top"><h3>${k}</h3><span class="dong">${DONG[x.dong]}</span></div>
+    <p class="menu">${esc(x.menu)}</p>
+    <div class="meta"><span>학교까지 ${dist}</span>
+      <span>평점 ${list.length?`<b class="st">★ ${avg.toFixed(1)}</b> · ${list.length}개`:`<span class="empty">아직 평 없음</span>`}</span></div>
+    ${list.length?`<details class="others"${list.length<=2?" open":""}><summary>한줄평 ${list.length}개</summary><ul>${list.map(r=>`<li><span class="rv-name">${esc(nameOf(r.uid))}</span> <b class="st">${stars(r.s)}</b>${r.t?`<span class="rv-t">${esc(r.t)}</span>`:""}${RV.isAdmin&&r.uid!==myUid?` <button class="ghost mini" type="button" data-act="adm-del" data-uid="${esc(r.uid)}">삭제</button>`:""}</li>`).join("")}</ul></details>`:""}
+    ${RV.open===x.name?editor(x,mine||{}):""}
+    <div class="card-foot"><span class="tag">${x.pick?"맛집 글 단골":""}</span>
+      <span class="foot-btns">${btn}
+      <a class="map" href="${mapUrl(x.name)}" target="_blank" rel="noopener">네이버 지도 ↗</a></span></div>
+  </article>`;
+}
+function editor(x,cur){
+  return `<form class="editor" data-form="1">
+    <div class="star-pick" role="radiogroup" aria-label="별점">${[1,2,3,4,5].map(n=>`<button type="button" class="sp" data-v="${n}" aria-pressed="${(cur.s||0)>=n}">★</button>`).join("")}</div>
+    <input type="hidden" name="s" value="${cur.s||0}">
+    <input class="ed-in" name="t" maxlength="80" placeholder="한줄평 (예: 데리야끼막창 꼭 먹기)" value="${esc(cur.t||"")}">
+    <div class="ed-d"><span>학교까지</span>${[1,2,3,4].map(n=>`<button type="button" class="dp" data-lv="${n}" aria-pressed="${+cur.d===n}">${DIST[n].split(" · ")[0]}</button>`).join("")}<input type="hidden" name="d" value="${DIST[cur.d]?cur.d:0}"></div>
+    <div class="ed-row"><button class="btn-save" type="submit">저장</button><button class="ghost" type="button" data-act="cancel">취소</button>
+    ${(cur.s)?`<button class="ghost danger" type="button" data-act="remove">삭제</button>`:""}<span class="ed-msg" role="status"></span></div>
+  </form>`;
+}
+function rerender(){if(RV.open){RV.dirty=true;return}renderPanel()}
+function resolveNames(){}
+async function writeMine(places){
+  const {doc,setDoc,serverTimestamp}=RV.fs;const u=RV.me;
+  await setDoc(doc(RV.db,"reviews",u.uid),{name:(u.displayName||"익명").slice(0,30),admin:RV.isAdmin,places,updatedAt:serverTimestamp()});
+}
+async function saveReview(name,form){
+  const msg=form.querySelector(".ed-msg");
+  const sv=+form.s.value, t=form.t.value.trim().slice(0,80);
+  if(!sv){msg.textContent="별점을 골라주세요.";return}
+  msg.textContent="저장 중…";
+  try{
+    const dv=+form.d.value||0;
+    await writeMine({...(RV.reviews[RV.me.uid]||{}),[name]:{s:sv,t,...(dv?{d:dv}:{}),at:Date.now()}});
+    RV.open=null;RV.dirty=false;renderPanel();
+  }catch(e){msg.textContent=e&&e.code==="permission-denied"?"저장 권한이 없어요. 다시 로그인해 보세요.":"저장하지 못했어요. 잠시 후 다시 눌러주세요."}
+}
+async function removeReview(name,form){
+  const msg=form.querySelector(".ed-msg");msg.textContent="삭제 중…";
+  try{const mine={...(RV.reviews[RV.me.uid]||{})};delete mine[name];await writeMine(mine);RV.open=null;renderPanel()}
+  catch(e){msg.textContent="삭제하지 못했어요."}
+}
+async function adminDelete(uid,name,btn){
+  if(btn.dataset.confirm!=="1"){btn.dataset.confirm="1";btn.textContent="정말 삭제?";return}
+  const {doc,updateDoc,deleteField,FieldPath}=RV.fs;
+  try{await updateDoc(doc(RV.db,"reviews",uid),new FieldPath("places",name),deleteField())}catch(e){btn.textContent="실패"}
+}
+async function importBackup(file){
+  const st=$("#importMsg");
+  try{
+    const j=JSON.parse(await file.text());const places=j.places||j;
+    if(typeof places!=="object")throw 0;
+    await writeMine({...places,...(RV.reviews[RV.me.uid]||{})});
+    st.textContent=`${Object.keys(places).length}곳 평을 가져왔어요.`;
+  }catch(e){st.textContent="파일을 읽지 못했어요. 백업 JSON 파일인지 확인해 주세요."}
+}
+function renderAuth(){
+  const box=$("#authBox");if(!box)return;
+  if(!RV.ready){box.innerHTML="";return}
+  if(RV.me){
+    box.innerHTML=`<span class="auth-name">${esc(RV.isAdmin?ADMIN_NAME:(RV.me.displayName||"나"))}님</span><button class="ghost" type="button" data-act="logout">로그아웃</button>`+
+      (RV.isAdmin?`<label class="ghost imp">백업 불러오기<input type="file" id="importFile" accept=".json,application/json" hidden></label><span id="importMsg" class="ed-msg"></span>`:"");
+    const f=$("#importFile");if(f)f.onchange=e=>e.target.files[0]&&importBackup(e.target.files[0]);
+  }else box.innerHTML=`<button class="ghost" type="button" data-act="login">구글 로그인</button>`;
+}
+async function initReviews(){
+  if(firebaseConfig.apiKey.startsWith("여기에")){$("#authBox").innerHTML=`<span class="auth-name">평 기능을 쓰려면 Firebase 설정을 넣어주세요</span>`;return}
+  try{
+    const [app,auth,fs]=await Promise.all([import(FB+"firebase-app.js"),import(FB+"firebase-auth.js"),import(FB+"firebase-firestore.js")]);
+    const fa=app.initializeApp(firebaseConfig);
+    RV.fs=fs;RV.db=fs.getFirestore(fa);RV.auth=auth.getAuth(fa);RV.authMod=auth;
+    auth.onAuthStateChanged(RV.auth,u=>{RV.me=u;RV.isAdmin=!!(u&&u.email&&u.email.toLowerCase()===ADMIN_EMAIL.toLowerCase());RV.ready=true;renderAuth();rerender()});
+    fs.onSnapshot(fs.collection(RV.db,"reviews"),sn=>{const r={},d={};sn.forEach(x=>{const v=x.data();r[x.id]=v.places||{};d[x.id]={name:v.name,admin:!!v.admin}});RV.reviews=r;RV.docs=d;rerender()},e=>console.error(e));
+  }catch(e){console.error(e)}
+}
+async function login(){try{await RV.authMod.signInWithPopup(RV.auth,new RV.authMod.GoogleAuthProvider())}catch(e){console.error(e)}}
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act]");if(!b)return;
+  if(b.dataset.act==="login"&&RV.authMod){login()}
+  else if(b.dataset.act==="logout"&&RV.authMod){RV.authMod.signOut(RV.auth)}
+  else if(b.dataset.act==="adm-del"){adminDelete(b.dataset.uid,b.closest(".card").dataset.place,b)}
+});
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-act],.sp,.dp");if(!b)return;
+  if(b.classList.contains("dp")){const f=b.closest("form"),v=+b.dataset.lv,nv=+f.d.value===v?0:v;f.d.value=nv;f.querySelectorAll(".dp").forEach(x=>x.setAttribute("aria-pressed",+x.dataset.lv===nv));return}
+  const cardEl=b.closest(".card");if(!cardEl)return;const name=cardEl.dataset.place;
+  if(b.classList.contains("sp")){const f=b.closest("form"),v=+b.dataset.v;f.s.value=v;f.querySelectorAll(".sp").forEach(x=>x.setAttribute("aria-pressed",+x.dataset.v<=v));return}
+  const act=b.dataset.act;
+  if(act==="edit"){RV.open=name;RV.dirty=false;renderPanel();const f=document.querySelector(`.card[data-place="${CSS.escape(name)}"] .ed-in`);f&&f.focus()}
+  else if(act==="cancel"){RV.open=null;RV.dirty=false;renderPanel()}
+  else if(act==="remove")removeReview(name,b.closest("form"));
+});
+document.addEventListener("submit",e=>{const f=e.target.closest("form[data-form]");if(!f)return;e.preventDefault();saveReview(f.closest(".card").dataset.place,f)});
+
+function renderDong(){
+  const opts=[["all","전체"],["h","회기동"],["i","이문동"],["w","휘경동"]];
+  $("#dongChips").innerHTML=opts.map(([k,l])=>`<button class="chip" type="button" data-d="${k}" aria-pressed="${state.dong===k}">${l}</button>`).join("");
+}
+function renderTabs(){
+  $("#tabs").innerHTML=Object.keys(DATA).map(c=>{
+    const n=flat.filter(x=>x.c===c&&okDong(x)).length;
+    return `<button class="tab" role="tab" type="button" data-c="${c}" aria-selected="${state.cuisine===c&&!state.q}">${ICON[c]} ${c}<span class="n">${n}</span></button>`}).join("");
+}
+function renderGrid(){
+  const g=$("#grid");
+  if(state.q||!state.cuisine){g.hidden=true;return}
+  g.hidden=false;
+  g.innerHTML=Object.keys(DATA[state.cuisine]).map(s=>{
+    const n=DATA[state.cuisine][s].filter(r=>okDong({dong:r[1]})).length;
+    return `<button class="tile" type="button" data-s="${s}" aria-pressed="${state.sub===s}" ${n?"":"disabled"}><b>${s}</b><span>${n}곳</span></button>`}).join("");
+}
+function renderPanel(){
+  const p=$("#panel");
+  let items,title,sub;
+  if(state.q){
+    const q=state.q.toLowerCase();
+    items=flat.filter(x=>okDong(x)&&(x.name.toLowerCase().includes(q)||x.menu.toLowerCase().includes(q)||x.s.includes(state.q)));
+    title=`“${esc(state.q)}” 검색 결과`;sub=`${items.length}곳`;
+  }else if(state.sub){
+    items=flat.filter(x=>x.c===state.cuisine&&x.s===state.sub&&okDong(x));
+    title=`${state.cuisine} · ${state.sub}`;sub=`${items.length}곳 · 평점 높은 곳, 맛집 글 단골 먼저`;
+  }else{
+    p.innerHTML=`<div class="hint">${state.cuisine?"먹고 싶은 메뉴를 누르면 음식점이 펼쳐져요. 못 고르겠으면 메뉴 랜덤 추천을 눌러보세요.":"한식·양식·중식·일식·그 외 중에서 고르거나, 랜덤 추천으로 큰 분류부터 정해보세요."}</div>`;return;
+  }
+  const score=x=>avgOf(othersOf(x.name));
+  items.sort((a,b)=>score(b)-score(a)||(b.pick||0)-(a.pick||0));
+  p.innerHTML=`<div class="panel-head"><h2>${title}</h2><p>${sub}</p></div>`+
+    (items.length?`<div class="list">${items.map(card).join("")}</div>`:`<div class="hint">조건에 맞는 곳이 없어요.</div>`);
+  resolveNames();
+}
+function level(){return state.q||state.sub?"place":state.cuisine?"menu":"cuisine"}
+function renderBtn(){$("#placeBtn").hidden=level()==="place";$("#rxBtn").textContent={cuisine:"분류 랜덤 추천",menu:"메뉴 랜덤 추천",place:"음식점 랜덤 추천"}[level()]}
+function renderAll(){renderDong();renderTabs();renderGrid();renderPanel();renderBtn()}
+
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+function prescribe(force){
+  force=force===true;
+  const box=$("#pickBox"),lv=force?"place":level(),dongTxt=state.dong!=="all"?" · "+DONG[state.dong]:"";
+  let head,body;
+  if(lv==="cuisine"){
+    const opts=Object.keys(DATA).filter(c=>flat.some(x=>x.c===c&&okDong(x)));
+    if(!opts.length)return;
+    const c=rnd(opts),n=flat.filter(x=>x.c===c&&okDong(x)).length;
+    head=`분류 랜덤 추천${dongTxt}`;
+    body=`<h2>오늘은 ${c} 어때요?</h2><p class="menu">${n}곳 · 메뉴 ${Object.keys(DATA[c]).length}가지</p>
+      <div class="pick-row"><button class="map go" type="button" data-c="${c}">${c} 메뉴 보기</button>`;
+  }else if(lv==="menu"){
+    const opts=Object.keys(DATA[state.cuisine]).filter(s=>DATA[state.cuisine][s].some(r=>okDong({dong:r[1]})));
+    if(!opts.length)return;
+    const sb=rnd(opts),n=DATA[state.cuisine][sb].filter(r=>okDong({dong:r[1]})).length;
+    head=`메뉴 랜덤 추천 · ${esc(state.cuisine)}${dongTxt}`;
+    body=`<h2>오늘은 ${esc(sb)} 어때요?</h2><p class="menu">${n}곳에서 먹을 수 있어요</p>
+      <div class="pick-row"><button class="map go" type="button" data-s="${esc(sb)}">${esc(sb)} 음식점 보기</button>`;
+  }else{
+    let pool;
+    if(state.q){const q=state.q.toLowerCase();pool=flat.filter(x=>okDong(x)&&(x.name.toLowerCase().includes(q)||x.menu.toLowerCase().includes(q)||x.s.includes(state.q)))}
+    else if(state.sub)pool=flat.filter(x=>x.c===state.cuisine&&x.s===state.sub&&okDong(x));
+    else if(state.cuisine)pool=flat.filter(x=>x.c===state.cuisine&&okDong(x));
+    else pool=flat.filter(okDong);
+    if(!pool.length)return;
+    const x=rnd(pool);
+    const scope=state.q?"“"+state.q+"”":state.sub?state.cuisine+" · "+state.sub:state.cuisine||"전체";
+    head=`음식점 랜덤 추천 · ${esc(scope)}${dongTxt}`;
+    const ot=othersOf(x.name);
+    body=`<h2>${esc(x.name)}</h2><p class="menu">${esc(x.c)} · ${esc(x.s)} · ${DONG[x.dong]} — ${esc(x.menu)}</p>
+      <p class="menu">${ot.length?`평점 ★ ${avgOf(ot).toFixed(1)} · ${ot.length}개`:"아직 평 없음"}</p>
+      <div class="pick-row"><a class="map" href="${mapUrl(x.name)}" target="_blank" rel="noopener">네이버 지도 ↗</a>`;
+  }
+  box.hidden=false;
+  box.innerHTML=`<div class="pick"><span class="k">${head}</span>${body}
+    <button class="ghost" type="button" id="again">다시 뽑기</button><button class="ghost" type="button" id="closePick">닫기</button></div></div>`;
+  $("#again").onclick=()=>prescribe(force);$("#closePick").onclick=()=>{box.hidden=true};
+}
+
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button");if(!t)return;
+  if(t.classList.contains("go"))$("#pickBox").hidden=true;
+  if(t.dataset.d){state.dong=t.dataset.d;renderAll()}
+  else if(t.dataset.c){state.cuisine=(state.cuisine===t.dataset.c&&!state.q)?null:t.dataset.c;state.sub=null;state.q="";$("#q").value="";renderAll()}
+  else if(t.dataset.s){state.sub=state.sub===t.dataset.s?null:t.dataset.s;renderGrid();renderPanel();renderBtn();if(state.sub)$("#panel").scrollIntoView({behavior:"smooth",block:"start"})}
+});
+$("#rxBtn").addEventListener("click",()=>prescribe(false));
+$("#placeBtn").addEventListener("click",()=>prescribe(true));
+$("#q").addEventListener("input",e=>{state.q=e.target.value.trim();renderTabs();renderGrid();renderPanel();renderBtn()});
+renderAll();
+initReviews();
+</script>
+</body>
+</html>
