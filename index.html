@@ -125,6 +125,9 @@ button.map{background:none;cursor:pointer}
 .star-pick{display:flex;gap:2px}
 .sp{font-size:26px;line-height:1;background:none;border:0;color:var(--line);cursor:pointer;padding:2px}
 .sp[aria-pressed="true"]{color:var(--accent)}
+.ed-ta{resize:vertical;min-height:70px;line-height:1.5}
+.ed-count{align-self:flex-end;font-size:12px;color:var(--muted);margin-top:-4px}
+.rv-t{white-space:pre-line}
 .ed-in{font:14px var(--f-body);padding:8px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);width:100%}
 .ed-d{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--muted);flex-wrap:wrap}
 .dp{font:400 13px var(--f-body);background:var(--paper);border:1.5px solid var(--line);color:var(--ink);border-radius:999px;padding:4px 10px;cursor:pointer}
@@ -372,7 +375,8 @@ function editor(x,cur){
   return `<form class="editor" data-form="1">
     <div class="star-pick" role="radiogroup" aria-label="별점">${[1,2,3,4,5].map(n=>`<button type="button" class="sp" data-v="${n}" aria-pressed="${(cur.s||0)>=n}">★</button>`).join("")}</div>
     <input type="hidden" name="s" value="${cur.s||0}">
-    <input class="ed-in" name="t" maxlength="80" placeholder="한줄평 (예: 데리야끼막창 꼭 먹기)" value="${esc(cur.t||"")}">
+    <textarea class="ed-in ed-ta" name="t" maxlength="300" rows="3" placeholder="리뷰 (예: 데리야끼막창 꼭 먹기, 저녁엔 웨이팅 있음)">${esc(cur.t||"")}</textarea>
+    <span class="ed-count" aria-live="polite">${(cur.t||"").length} / 300</span>
     ${true?`<div class="ed-d"><span>학교까지</span>${[1,2,3,4].map(n=>`<button type="button" class="dp" data-lv="${n}" aria-pressed="${+cur.d===n}">${DIST[n].split(" · ")[0]}</button>`).join("")}<input type="hidden" name="d" value="${DIST[cur.d]?cur.d:0}"></div>`:""}
     <div class="ed-row"><button class="btn-save" type="submit">저장</button><button class="ghost" type="button" data-act="cancel">취소</button>
     ${(cur.s)?`<button class="ghost danger" type="button" data-act="remove">삭제</button>`:""}<span class="ed-msg" role="status"></span></div>
@@ -392,7 +396,7 @@ async function saveDistance(changes){
 }
 async function saveReview(name,form){
   const msg=form.querySelector(".ed-msg");
-  const sv=+form.s.value, t=form.t.value.trim().slice(0,80);
+  const sv=+form.s.value, t=form.t.value.trim().slice(0,300);
   if(!sv){msg.textContent="별점을 골라주세요.";return}
   msg.textContent="저장 중…";
   try{
@@ -422,7 +426,7 @@ async function importBackup(file){
   st.textContent="저장 중…";
   try{
     const rv={},ds={};
-    for(const k in places){const v=places[k]||{};if(v.s)rv[k]={s:+v.s,t:String(v.t||"").slice(0,80),...(DIST[v.d]?{d:+v.d}:{}),at:v.at||Date.now()}}
+    for(const k in places){const v=places[k]||{};if(v.s)rv[k]={s:+v.s,t:String(v.t||"").slice(0,300),...(DIST[v.d]?{d:+v.d}:{}),at:v.at||Date.now()}}
     await writeMine({...rv,...(RV.reviews[RV.me.uid]||{})});
     st.textContent=`${Object.keys(places).length}곳 평을 가져왔어요.`;
   }catch(e){
@@ -469,6 +473,7 @@ document.addEventListener("click",e=>{
   else if(act==="cancel"){RV.open=null;RV.dirty=false;renderPanel()}
   else if(act==="remove")removeReview(name,b.closest("form"));
 });
+document.addEventListener("input",e=>{if(e.target.matches&&e.target.matches(".ed-ta")){const c=e.target.parentElement.querySelector(".ed-count");if(c)c.textContent=e.target.value.length+" / 300"}});
 document.addEventListener("submit",e=>{const f=e.target.closest("form[data-form]");if(!f)return;e.preventDefault();saveReview(f.closest(".card").dataset.place,f)});
 
 function renderDong(){
